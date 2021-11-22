@@ -23,6 +23,12 @@ const UserSchema = new mongoose.Schema({
         required : true,
         minlength : 5,
         maxlength : 3000
+    },
+    created_at : {
+        type : Date
+    },
+    updated_at : {
+        type : Date
     }
 });
 
@@ -37,6 +43,9 @@ const UserModel = {
     },
     getUserById : function( userId ){
         return User.findOne({ id : userId });
+    },
+    getQuotes: function(){
+        return User.find().sort( { created_at: -1 } );
     }
 };
 

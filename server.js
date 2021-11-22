@@ -4,7 +4,7 @@ const mongoose = require( 'mongoose' );
 var app = express();
 
 app.use(express.json()) //en el curriculum nos enseñan esta
-//app.use(bodyParser.urlencoded({entended: true}));
+app.use(bodyParser.urlencoded({entended: false}));
 
 app.use(express.static(__dirname +"/static"));
 app.set("views", __dirname + "/views");
@@ -16,14 +16,9 @@ mongoose.connect('mongodb://localhost/users_db', {useNewUrlParser: true});
 const {UserModel} = require( './models/UsersModel' );
 //------------------
 
-app.get("/", function(req, res){
-    UserModel
-        .getUsers()
-        .then( data => {
-            console.log( data );
-            response.render( 'home', { users : data } );
-        });  
-})
+app.get("/", function(req, response){
+    response.render( 'home');
+});
 
 app.post( '/quotes', function( request, response ){
     console.log( request.body );
@@ -31,13 +26,15 @@ app.post( '/quotes', function( request, response ){
     const firstName = request.body.firstName;
     const lastName = request.body.lastName;
     const quote = request.body.userQuote;
+    const created_at = new Date();
 
     // Run validations to see if the 'id' is not already in the list
     const newUser = {
         id,
         firstName,
         lastName,
-        quote
+        quote,
+        created_at
     };
 
     console.log( newUser );
@@ -51,6 +48,22 @@ app.post( '/quotes', function( request, response ){
             console.log( err );
         })
     response.redirect( '/' );
+});
+
+app.get("/quotes", function(req, response){
+    UserModel
+        .getQuotes()
+        .then( result => {
+            if( result === null ){
+                throw new Error( "Result: None" );
+            }
+            console.log("All quotes added: "+ result);
+            response.render( 'quotesall', { found: true, user: result } );
+            console.log("QQQQQQQQ "+ user);
+        })
+        .catch( err => {
+            response.render( 'quotesall', { found: false } );
+        })
 });
 
 app.listen( 8080, function(){
